@@ -1,0 +1,100 @@
+
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8">
+  <title>Stake-Based Dutching Calculator</title>
+  <style>
+    body {
+      font-family: Arial, sans-serif;
+      padding: 20px;
+      max-width: 800px;
+      margin: auto;
+    }
+    h2 {
+      text-align: center;
+    }
+    .section {
+      margin-bottom: 20px;
+      padding: 10px;
+      border: 1px solid #ccc;
+    }
+    .results {
+      background: #f0f0f0;
+      padding: 15px;
+      border: 1px solid #999;
+    }
+  </style>
+</head>
+<body>
+  <h2>Stake-Based Dutching Calculator</h2>
+
+  <div class="section">
+    <label>Outcome 1 Name: <input type="text" id="name1" value="Paris Win"></label>
+    <label>Odds: <input type="number" id="odds1" value="2.0" step="0.01"></label>
+  </div>
+
+  <div class="section">
+    <label>Outcome 2 Name: <input type="text" id="name2" value="Draw"></label>
+    <label>Odds: <input type="number" id="odds2" value="3.5" step="0.01"></label>
+  </div>
+
+  <div class="section">
+    <label>Outcome 3 Name: <input type="text" id="name3" value="Inter Win"></label>
+    <label>Odds: <input type="number" id="odds3" value="4.0" step="0.01" disabled></label>
+  </div>
+
+  <div class="section">
+    <label>Total Stake (£): <input type="number" id="totalStake" value="20" step="0.01"></label>
+    <label>Break-even on Outcome 2? <input type="checkbox" id="breakEven2" checked></label>
+  </div>
+
+  <button onclick="calculate()">Calculate</button>
+
+  <div class="results" id="results" style="display:none;"></div>
+
+  <script>
+    function calculate() {
+      const name1 = document.getElementById("name1").value;
+      const name2 = document.getElementById("name2").value;
+      const name3 = document.getElementById("name3").value;
+
+      const odds1 = parseFloat(document.getElementById("odds1").value);
+      const odds2 = parseFloat(document.getElementById("odds2").value);
+
+      const totalStake = parseFloat(document.getElementById("totalStake").value);
+      const breakEven2 = document.getElementById("breakEven2").checked;
+
+      let stake2 = 0;
+      let stake1 = 0;
+
+      if (breakEven2) {
+        // Make Outcome 2 return totalStake (break-even)
+        stake2 = totalStake / odds2;
+        // Remainder goes to Outcome 1
+        stake1 = totalStake - stake2;
+      } else {
+        // No special rule — just split the stake
+        stake1 = totalStake / 2;
+        stake2 = totalStake / 2;
+      }
+
+      const usedStake = stake1 + stake2;
+      const profit1 = stake1 * odds1 - usedStake;
+      const profit2 = stake2 * odds2 - usedStake;
+      const profit3 = -usedStake;
+
+      const results = `
+        <h3>Results</h3>
+        <p><strong>${name1}:</strong> Stake £${stake1.toFixed(2)} → Profit £${profit1.toFixed(2)}</p>
+        <p><strong>${name2}:</strong> Stake £${stake2.toFixed(2)} → Profit £${profit2.toFixed(2)}</p>
+        <p><strong>${name3}:</strong> Stake £0.00 → Profit £${profit3.toFixed(2)} (not covered)</p>
+        <p><strong>Total Stake Used:</strong> £${usedStake.toFixed(2)}</p>
+      `;
+
+      document.getElementById("results").innerHTML = results;
+      document.getElementById("results").style.display = "block";
+    }
+  </script>
+</body>
+</html>
